@@ -27,7 +27,7 @@ app.get('/download-audio', (req, res) => {
     }
 
     // Comando para obter o título do vídeo
-    const getTitleCommand = `./yt-dlp --print title "${audioUrl}" --cookies-from-browser ${browser}`;
+    const getTitleCommand = `yt-dlp --print title "${audioUrl}" --cookies-from-browser ${browser}`;
 
     exec(getTitleCommand, (error, stdout, stderr) => {
         if (error) {
@@ -40,7 +40,7 @@ app.get('/download-audio', (req, res) => {
         const outputFileName = `${title}.mp3`;
 
         // Comando para baixar o áudio em formato MP3
-        const downloadCommand = `./yt-dlp -x --audio-format mp3 -o "${outputFileName}" "${audioUrl}"`;
+        const downloadCommand = `yt-dlp -x --audio-format mp3 -o "${outputFileName}" "${audioUrl}"`;
 
         exec(downloadCommand, (error, stdout, stderr) => {
             if (error) {
@@ -75,7 +75,7 @@ app.get('/download-video', (req, res) => {
     }
 
     // Comando para obter o título do vídeo
-    const getTitleCommand = `./yt-dlp --print title "${videoUrl} --cookies-from-browser ${browser}"`;
+    const getTitleCommand = `yt-dlp --print title "${videoUrl} --cookies-from-browser ${browser}"`;
 
     exec(getTitleCommand, (error, stdout, stderr) => {
         if (error) {
@@ -88,7 +88,7 @@ app.get('/download-video', (req, res) => {
         const outputFileName = `${title}.mp4`;
 
         // Comando para baixar o vídeo em qualidade máxima
-        const downloadCommand = `./yt-dlp -f best -o "${outputFileName}" "${videoUrl}"`;
+        const downloadCommand = `yt-dlp -f best -o "${outputFileName}" "${videoUrl}"`;
 
         exec(downloadCommand, (error, stdout, stderr) => {
             if (error) {

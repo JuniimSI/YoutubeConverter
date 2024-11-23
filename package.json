@@ -3,7 +3,8 @@
     "express": "^4.21.1",
     "fs": "^0.0.1-security",
     "node-fetch": "^3.3.2",
-    "youtube-dl-exec": "^3.0.10"
+    "youtube-dl-exec": "^3.0.10",
+    "yt-dlp": "^2024.10.22"
   },
   "scripts": {
     "build": "./render-build.sh"
