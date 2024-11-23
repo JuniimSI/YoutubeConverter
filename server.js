@@ -3,7 +3,7 @@ const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Função para transformar texto em snake_case, sem acentos e minúsculas
 const toSnakeCase = (str) => {
@@ -25,7 +25,7 @@ app.get('/download-audio', (req, res) => {
     }
 
     // Comando para obter o título do vídeo
-    const getTitleCommand = `yt-dlp --print title "${audioUrl}"`;
+    const getTitleCommand = `./yt-dlp --print title "${audioUrl}"`;
 
     exec(getTitleCommand, (error, stdout, stderr) => {
         if (error) {
@@ -38,7 +38,7 @@ app.get('/download-audio', (req, res) => {
         const outputFileName = `${title}.mp3`;
 
         // Comando para baixar o áudio em formato MP3
-        const downloadCommand = `yt-dlp -x --audio-format mp3 -o "${outputFileName}" "${audioUrl}"`;
+        const downloadCommand = `./yt-dlp -x --audio-format mp3 -o "${outputFileName}" "${audioUrl}"`;
 
         exec(downloadCommand, (error, stdout, stderr) => {
             if (error) {
@@ -72,7 +72,7 @@ app.get('/download-video', (req, res) => {
     }
 
     // Comando para obter o título do vídeo
-    const getTitleCommand = `yt-dlp --print title "${videoUrl}"`;
+    const getTitleCommand = `./yt-dlp --print title "${videoUrl}"`;
 
     exec(getTitleCommand, (error, stdout, stderr) => {
         if (error) {
@@ -85,7 +85,7 @@ app.get('/download-video', (req, res) => {
         const outputFileName = `${title}.mp4`;
 
         // Comando para baixar o vídeo em qualidade máxima
-        const downloadCommand = `yt-dlp -f best -o "${outputFileName}" "${videoUrl}"`;
+        const downloadCommand = `./yt-dlp -f best -o "${outputFileName}" "${videoUrl}"`;
 
         exec(downloadCommand, (error, stdout, stderr) => {
             if (error) {

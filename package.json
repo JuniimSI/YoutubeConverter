@@ -4,5 +4,8 @@
     "fs": "^0.0.1-security",
     "node-fetch": "^3.3.2",
     "youtube-dl-exec": "^3.0.10"
+  },
+  "scripts": {
+    "build": "./render-build.sh"
   }
 }
