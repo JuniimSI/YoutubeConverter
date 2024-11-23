@@ -19,13 +19,15 @@ const toSnakeCase = (str) => {
 // Rota para baixar áudio
 app.get('/download-audio', (req, res) => {
     const audioUrl = req.query.url; // Obtém a URL do áudio a partir dos parâmetros da query
+    const browser = req.query.browser || "chrome"; // Default para Chrome
+    console.log(browser); //
 
     if (!audioUrl) {
         return res.status(400).send('URL do áudio é necessária.');
     }
 
     // Comando para obter o título do vídeo
-    const getTitleCommand = `./yt-dlp --print title "${audioUrl}"`;
+    const getTitleCommand = `./yt-dlp --print title "${audioUrl}" --cookies-from-browser ${browser}`;
 
     exec(getTitleCommand, (error, stdout, stderr) => {
         if (error) {
@@ -66,13 +68,14 @@ app.get('/download-audio', (req, res) => {
 // Rota para baixar vídeo
 app.get('/download-video', (req, res) => {
     const videoUrl = req.query.url; // Obtém a URL do vídeo a partir dos parâmetros da query
+    const browser = req.query.browser || "chrome"; // Default para Chrome
 
     if (!videoUrl) {
         return res.status(400).send('URL do vídeo é necessária.');
     }
 
     // Comando para obter o título do vídeo
-    const getTitleCommand = `./yt-dlp --print title "${videoUrl}"`;
+    const getTitleCommand = `./yt-dlp --print title "${videoUrl} --cookies-from-browser ${browser}"`;
 
     exec(getTitleCommand, (error, stdout, stderr) => {
         if (error) {
