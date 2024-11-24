@@ -27,7 +27,11 @@ app.get('/download-audio', (req, res) => {
     }
 
     // Comando para obter o título do vídeo
-    const getTitleCommand = `./yt-dlp --print title "${audioUrl}" --cookies-from-browser ${browser}`;
+    // const getTitleCommand = `./yt-dlp --print title "${audioUrl}" --cookies-from-browser ${browser}`;
+    const getTitleCommand = browser
+        ? `./yt-dlp --print title "${audioUrl}" --cookies-from-browser ${browser}`
+        : `./yt-dlp --print title "${audioUrl}"`;
+
 
     exec(getTitleCommand, (error, stdout, stderr) => {
         if (error) {
