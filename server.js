@@ -1,5 +1,5 @@
 const express = require('express');
-const { exec } = require('child_process');
+const youtubedl = require('youtube-dl-exec');
 const path = require('path');
 const fs = require('fs');
 const app = express();
@@ -17,100 +17,92 @@ const toSnakeCase = (str) => {
 };
 
 // Rota para baixar áudio
-app.get('/download-audio', (req, res) => {
-    const audioUrl = req.query.url; // Obtém a URL do áudio a partir dos parâmetros da query
-    const browser = req.query.browser || "chrome"; // Default para Chrome
-    console.log(browser); //
+app.get('/download-audio', async (req, res) => {
+    const audioUrl = req.query.url;
+    const browser = req.query.browser || "chrome"; // Padrão para Chrome
 
     if (!audioUrl) {
         return res.status(400).send('URL do áudio é necessária.');
     }
 
-    // Comando para obter o título do vídeo
-    const getTitleCommand = `./yt-dlp --print title "${audioUrl}"  --cookies cookies.txt`;
-
-    exec(getTitleCommand, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Erro ao obter o título: ${stderr}`);
-            return res.status(500).send('Erro ao obter o título do vídeo.');
-        }
-
-        // Processa o título para snake_case
-        const title = toSnakeCase(stdout.trim());
+    try {
+        // Obtém o título do vídeo
+        const metadata = await youtubedl(audioUrl, {
+            dumpSingleJson: true, // Retorna as informações do vídeo em JSON
+            cookiesFromBrowser: browser,
+        });
+        const title = toSnakeCase(metadata.title);
         const outputFileName = `${title}.mp3`;
 
-        // Comando para baixar o áudio em formato MP3
-        const downloadCommand = `./yt-dlp -x --audio-format mp3 -o "${outputFileName}" "${audioUrl}"`;
-
-        exec(downloadCommand, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Erro ao baixar o áudio: ${stderr}`);
-                return res.status(500).send('Erro ao baixar o áudio.');
-            }
-
-            // Verifica se o arquivo foi criado
-            const filePath = path.join(__dirname, outputFileName);
-            if (fs.existsSync(filePath)) {
-                res.download(filePath, (err) => {
-                    if (err) {
-                        console.error(`Erro ao enviar o arquivo: ${err}`);
-                    }
-                    // Remove o arquivo após o download
-                    fs.unlinkSync(filePath);
-                });
-            } else {
-                res.status(500).send('Arquivo não encontrado após o download.');
-            }
+        // Baixa o áudio
+        const filePath = path.join(__dirname, outputFileName);
+        await youtubedl(audioUrl, {
+            extractAudio: true,
+            audioFormat: 'mp3',
+            output: filePath,
+            cookiesFromBrowser: browser,
         });
-    });
+
+        // Envia o arquivo para o cliente
+        if (fs.existsSync(filePath)) {
+            res.download(filePath, (err) => {
+                if (err) {
+                    console.error(`Erro ao enviar o arquivo: ${err}`);
+                }
+                // Remove o arquivo após o download
+                fs.unlinkSync(filePath);
+            });
+        } else {
+            res.status(500).send('Arquivo não encontrado após o download.');
+        }
+    } catch (err) {
+        console.error('Erro ao baixar o áudio:', err);
+        res.status(500).send('Erro ao processar o download do áudio.');
+    }
 });
 
 // Rota para baixar vídeo
-app.get('/download-video', (req, res) => {
-    const videoUrl = req.query.url; // Obtém a URL do vídeo a partir dos parâmetros da query
-    const browser = req.query.browser || "chrome"; // Default para Chrome
+app.get('/download-video', async (req, res) => {
+    const videoUrl = req.query.url;
+    const browser = req.query.browser || "chrome";
 
     if (!videoUrl) {
         return res.status(400).send('URL do vídeo é necessária.');
     }
 
-    // Comando para obter o título do vídeo
-    const getTitleCommand = `./yt-dlp --print title "${videoUrl} --cookies-from-browser ${browser}"`;
-
-    exec(getTitleCommand, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Erro ao obter o título: ${stderr}`);
-            return res.status(500).send('Erro ao obter o título do vídeo.');
-        }
-
-        // Processa o título para snake_case
-        const title = toSnakeCase(stdout.trim());
+    try {
+        // Obtém o título do vídeo
+        const metadata = await youtubedl(videoUrl, {
+            dumpSingleJson: true,
+            cookiesFromBrowser: browser,
+        });
+        const title = toSnakeCase(metadata.title);
         const outputFileName = `${title}.mp4`;
 
-        // Comando para baixar o vídeo em qualidade máxima
-        const downloadCommand = `./yt-dlp -f best -o "${outputFileName}" "${videoUrl}"`;
-
-        exec(downloadCommand, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Erro ao baixar o vídeo: ${stderr}`);
-                return res.status(500).send('Erro ao baixar o vídeo.');
-            }
-
-            // Verifica se o arquivo foi criado
-            const filePath = path.join(__dirname, outputFileName);
-            if (fs.existsSync(filePath)) {
-                res.download(filePath, (err) => {
-                    if (err) {
-                        console.error(`Erro ao enviar o arquivo: ${err}`);
-                    }
-                    // Remove o arquivo após o download
-                    fs.unlinkSync(filePath);
-                });
-            } else {
-                res.status(500).send('Arquivo não encontrado após o download.');
-            }
+        // Baixa o vídeo
+        const filePath = path.join(__dirname, outputFileName);
+        await youtubedl(videoUrl, {
+            format: 'best',
+            output: filePath,
+            cookiesFromBrowser: browser,
         });
-    });
+
+        // Envia o arquivo para o cliente
+        if (fs.existsSync(filePath)) {
+            res.download(filePath, (err) => {
+                if (err) {
+                    console.error(`Erro ao enviar o arquivo: ${err}`);
+                }
+                // Remove o arquivo após o download
+                fs.unlinkSync(filePath);
+            });
+        } else {
+            res.status(500).send('Arquivo não encontrado após o download.');
+        }
+    } catch (err) {
+        console.error('Erro ao baixar o vídeo:', err);
+        res.status(500).send('Erro ao processar o download do vídeo.');
+    }
 });
 
 // Inicia o servidor
