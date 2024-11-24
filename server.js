@@ -19,7 +19,6 @@ const toSnakeCase = (str) => {
 // Rota para baixar áudio
 app.get('/download-audio', async (req, res) => {
     const audioUrl = req.query.url;
-    const browser = req.query.browser || "chrome"; // Padrão para Chrome
 
     if (!audioUrl) {
         return res.status(400).send('URL do áudio é necessária.');
@@ -28,8 +27,7 @@ app.get('/download-audio', async (req, res) => {
     try {
         // Obtém o título do vídeo
         const metadata = await youtubedl(audioUrl, {
-            dumpSingleJson: true, // Retorna as informações do vídeo em JSON
-            cookiesFromBrowser: browser,
+            dumpSingleJson: true
         });
         const title = toSnakeCase(metadata.title);
         const outputFileName = `${title}.mp3`;
@@ -39,8 +37,7 @@ app.get('/download-audio', async (req, res) => {
         await youtubedl(audioUrl, {
             extractAudio: true,
             audioFormat: 'mp3',
-            output: filePath,
-            cookiesFromBrowser: browser,
+            output: filePath
         });
 
         // Envia o arquivo para o cliente
@@ -73,8 +70,7 @@ app.get('/download-video', async (req, res) => {
     try {
         // Obtém o título do vídeo
         const metadata = await youtubedl(videoUrl, {
-            dumpSingleJson: true,
-            cookiesFromBrowser: browser,
+            dumpSingleJson: true
         });
         const title = toSnakeCase(metadata.title);
         const outputFileName = `${title}.mp4`;
@@ -83,8 +79,7 @@ app.get('/download-video', async (req, res) => {
         const filePath = path.join(__dirname, outputFileName);
         await youtubedl(videoUrl, {
             format: 'best',
-            output: filePath,
-            cookiesFromBrowser: browser,
+            output: filePath
         });
 
         // Envia o arquivo para o cliente
