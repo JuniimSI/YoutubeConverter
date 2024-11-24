@@ -35,6 +35,7 @@ app.get('/download-audio', async (req, res) => {
         // Baixa o áudio
         const filePath = path.join(__dirname, outputFileName);
         await youtubedl(audioUrl, {
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
             extractAudio: true,
             audioFormat: 'mp3',
             output: filePath
@@ -78,6 +79,7 @@ app.get('/download-video', async (req, res) => {
         // Baixa o vídeo
         const filePath = path.join(__dirname, outputFileName);
         await youtubedl(videoUrl, {
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
             format: 'best',
             output: filePath
         });
